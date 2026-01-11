@@ -1,7 +1,7 @@
 {
-	"name": "{{project-name}}",
+	"name": "ts-di",
 	"version": "1.0.0",
-	"description": "{{project-name}}",
+	"description": "ts-di",
 	"private": "true",
 	"typescript-template": {
 		"base": "1.0.1",
@@ -41,13 +41,13 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/{{project-org}}/{{project-name}}.git"
+		"url": "git+https://github.com/ts-di/ts-di.git"
 	},
-	"author": "{{project-org}}",
+	"author": "ts-di",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/{{project-org}}/{{project-name}}/issues"
+		"url": "https://github.com/ts-di/ts-di/issues"
 	},
-	"homepage": "https://github.com/{{project-org}}/{{project-name}}#readme",
+	"homepage": "https://github.com/ts-di/ts-di#readme",
 	"keywords": []
 }

@@ -1,4 +1,4 @@
-# {{project-name}} - Readme
+# ts-di - Readme
 
 ## Contributing & Development
 
