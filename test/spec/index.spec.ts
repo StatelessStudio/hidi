@@ -730,5 +730,214 @@ describe('hidi', () => {
 				expect(byClass).toEqual(logger2);
 			});
 		});
+
+		describe('Abstract Classes as Keys', () => {
+			it('can register and retrieve using abstract class as key', () => {
+				abstract class Logger {
+					abstract log(msg: string): string;
+				}
+
+				class ConsoleLogger extends Logger {
+					log(msg: string): string {
+						return `Console: ${msg}`;
+					}
+				}
+
+				const logger = new ConsoleLogger();
+				container.register(Logger, logger);
+
+				const retrieved = container.get(Logger);
+				expect(retrieved).toEqual(logger);
+				expect(retrieved?.log('test')).toBe('Console: test');
+			});
+
+			it('supports multiple abstract class implementations', () => {
+				abstract class Transport {
+					abstract send(data: string): string;
+				}
+
+				class HttpTransport extends Transport {
+					send(data: string): string {
+						return `HTTP: ${data}`;
+					}
+				}
+
+				class WebSocketTransport extends Transport {
+					send(data: string): string {
+						return `WS: ${data}`;
+					}
+				}
+
+				const http = new HttpTransport();
+				const ws = new WebSocketTransport();
+
+				container.register(HttpTransport, http);
+				container.register(WebSocketTransport, ws);
+
+				const httpResult = container.get(HttpTransport);
+				const wsResult = container.get(WebSocketTransport);
+
+				expect(httpResult?.send('data')).toBe('HTTP: data');
+				expect(wsResult?.send('data')).toBe('WS: data');
+			});
+
+			it('supports abstract class inheritance', () => {
+				abstract class BaseService {
+					abstract getName(): string;
+				}
+
+				abstract class ExtendedService extends BaseService {
+					abstract getVersion(): string;
+				}
+
+				class ConcreteService extends ExtendedService {
+					getName(): string {
+						return 'ConcreteService';
+					}
+
+					getVersion(): string {
+						return '1.0.0';
+					}
+				}
+
+				const service = new ConcreteService();
+				container.register(ExtendedService, service);
+
+				const retrieved = container.get(ExtendedService);
+				expect(retrieved).toEqual(service);
+				expect(retrieved?.getName()).toBe('ConcreteService');
+				expect(retrieved?.getVersion()).toBe('1.0.0');
+			});
+
+			it('should require with abstract class key', () => {
+				abstract class Repository {
+					abstract query(): string;
+				}
+
+				class DatabaseRepository extends Repository {
+					query(): string {
+						return 'db-query';
+					}
+				}
+
+				const repo = new DatabaseRepository();
+				container.register(Repository, repo);
+
+				const retrieved = container.require(Repository);
+				expect(retrieved).toEqual(repo);
+				expect(retrieved.query()).toBe('db-query');
+			});
+
+			it('should check existence with has() using abstract class', () => {
+				abstract class Service {
+					abstract execute(): void;
+				}
+
+				class ServiceImpl extends Service {
+					execute(): void {
+						// Implementation
+					}
+				}
+
+				const service = new ServiceImpl();
+				container.register(Service, service);
+
+				expect(container.has(Service)).toBeTrue();
+			});
+
+			it('supports abstract class in parent container hierarchy', () => {
+				abstract class Logger {
+					abstract log(msg: string): string;
+				}
+
+				class FileLogger extends Logger {
+					log(msg: string): string {
+						return `[FILE] ${msg}`;
+					}
+				}
+
+				const logger = new FileLogger();
+				container.register(Logger, logger);
+
+				const child = container.extend();
+
+				const parentRetrieved = container.get(Logger);
+				const childRetrieved = child.get(Logger);
+
+				expect(parentRetrieved).toEqual(logger);
+				expect(childRetrieved).toEqual(logger);
+				expect(childRetrieved?.log('test')).toBe('[FILE] test');
+			});
+
+			it('should allow child override of abstract class key', () => {
+				abstract class Logger {
+					abstract log(msg: string): string;
+				}
+
+				class ConsoleLogger extends Logger {
+					log(msg: string): string {
+						return `Console: ${msg}`;
+					}
+				}
+
+				class FileLogger extends Logger {
+					log(msg: string): string {
+						return `[FILE] ${msg}`;
+					}
+				}
+
+				const consoleLogger = new ConsoleLogger();
+				container.register(Logger, consoleLogger);
+
+				const child = container.extend();
+				const fileLogger = new FileLogger();
+				child.register(Logger, fileLogger);
+
+				expect(container.get(Logger)).toEqual(consoleLogger);
+				expect(child.get(Logger)).toEqual(fileLogger);
+			});
+
+			it('throws when requiring non-existent abstract class', () => {
+				abstract class NotRegistered {
+					abstract test(): string;
+				}
+
+				expect(() => {
+					container.require(NotRegistered);
+				}).toThrowError(
+					'Required dependency \'NotRegistered\' not found ' +
+						'in container'
+				);
+			});
+
+			it('supports mixing abstract and concrete class keys', () => {
+				abstract class BaseLogger {
+					abstract log(msg: string): string;
+				}
+
+				class Logger {
+					log(msg: string): string {
+						return msg;
+					}
+				}
+
+				const baseImpl = new (class extends BaseLogger {
+					log(msg: string): string {
+						return `Base: ${msg}`;
+					}
+				})();
+
+				const concreteLogger = new Logger();
+
+				container.register(BaseLogger, baseImpl);
+				container.register(Logger, concreteLogger);
+
+				const base = container.get(BaseLogger);
+				const concrete = container.get(Logger);
+
+				expect(base?.log('test')).toBe('Base: test');
+				expect(concrete?.log('test')).toBe('test');
+			});
+		});
 	});
 });
