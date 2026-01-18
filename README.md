@@ -53,7 +53,7 @@ container.register(DatabaseService, dbService);
 
 // Retrieve by class constructor
 const db = container.get(DatabaseService);
-db.connect(); // "Connected to database"
+db?.connect(); // "Connected to database"
 ```
 
 ## API Reference

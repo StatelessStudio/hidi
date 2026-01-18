@@ -9,7 +9,7 @@ describe('hidi', () => {
 			container = new DependencyContainer();
 		});
 
-		describe('inject()', () => {
+		describe('register()', () => {
 			it('can register a dependency with an explicit string key', () => {
 				const dependency = { service: 'test' };
 				container.register('TestService', dependency);
