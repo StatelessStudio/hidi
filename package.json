@@ -1,7 +1,7 @@
 {
-	"name": "ts-di",
+	"name": "hidi",
 	"version": "1.0.0",
-	"description": "ts-di",
+	"description": "hidi",
 	"private": "true",
 	"typescript-template": {
 		"base": "1.0.1",
@@ -41,13 +41,13 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/ts-di/ts-di.git"
+		"url": "git+https://github.com/StatelessStudio/hidi.git"
 	},
-	"author": "ts-di",
+	"author": "hidi",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/ts-di/ts-di/issues"
+		"url": "https://github.com/StatelessStudio/hidi/issues"
 	},
-	"homepage": "https://github.com/ts-di/ts-di#readme",
+	"homepage": "https://github.com/StatelessStudio/hidi#readme",
 	"keywords": []
 }
