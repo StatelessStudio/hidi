@@ -49,5 +49,13 @@
 		"url": "https://github.com/StatelessStudio/hidi/issues"
 	},
 	"homepage": "https://github.com/StatelessStudio/hidi#readme",
-	"keywords": []
+	"keywords": [
+		"di",
+		"dependency-injection",
+		"typescript",
+		"inversion-of-control",
+		"ioc",
+		"ts-di",
+		"dependency-container"
+	]
 }
