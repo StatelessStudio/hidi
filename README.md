@@ -1,6 +1,8 @@
-# ts-di - TypeScript Dependency Injection Container
+# hidi - Hierarchical Dependency Injection for TypeScript
 
 A lightweight, type-safe dependency injection container for TypeScript applications. Simplify dependency management with support for hierarchical containers, explicit key registration, and a minimal API.
+
+Software Development by [Stateless Studio](https://stateless.studio)
 
 ## Features
 
@@ -14,7 +16,7 @@ A lightweight, type-safe dependency injection container for TypeScript applicati
 ## Installation
 
 ```bash
-npm install ts-di
+npm install hidi
 ```
 
 ## Quick Start
@@ -24,7 +26,7 @@ npm install ts-di
 Register dependencies using string keys:
 
 ```typescript
-import { DependencyContainer } from 'ts-di';
+import { DependencyContainer } from 'hidi';
 
 const container = new DependencyContainer();
 

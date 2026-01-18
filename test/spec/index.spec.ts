@@ -1,7 +1,7 @@
 import 'jasmine';
 import { DependencyContainer } from '../../src';
 
-describe('ts-di', () => {
+describe('hidi', () => {
 	describe('DependencyContainer', () => {
 		let container: DependencyContainer;
 
