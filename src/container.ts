@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Injectable<T = any> = T | (new (...args: any[]) => T);
-export type InjectableKey<T = any> = string | (new (...args: any[]) => T);
+export type InjectableKey<T = any> =
+	| string
+	| (new (...args: any[]) => T)
+	| (abstract new (...args: any[]) => T);
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export class DependencyContainer {
