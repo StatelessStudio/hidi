@@ -174,7 +174,7 @@ container.register(Logger, logger);
 container.register(UserRepository, userRepo);
 
 // Later...
-const repo = container.get(UserRepository);
+const repo = container.require(UserRepository);
 ```
 
 ## Contributing & Development
