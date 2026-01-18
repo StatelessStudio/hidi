@@ -1,6 +1,6 @@
 {
 	"name": "hidi",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "hidi",
 	"private": "true",
 	"typescript-template": {
@@ -43,7 +43,7 @@
 		"type": "git",
 		"url": "git+https://github.com/StatelessStudio/hidi.git"
 	},
-	"author": "hidi",
+	"author": "Stateless Studio",
 	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/StatelessStudio/hidi/issues"
