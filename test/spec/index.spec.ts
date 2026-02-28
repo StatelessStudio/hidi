@@ -1,5 +1,5 @@
 import 'jasmine';
-import { DependencyContainer } from '../../src';
+import { DependencyContainer, HasDependencies } from '../../src';
 
 describe('hidi', () => {
 	describe('DependencyContainer', () => {
@@ -938,6 +938,458 @@ describe('hidi', () => {
 				expect(base?.log('test')).toBe('Base: test');
 				expect(concrete?.log('test')).toBe('test');
 			});
+		});
+
+		describe('Hierarchical containers with dependency injection', () => {
+			it('child override affects freshly resolved services', () => {
+				class Logger {
+					log(msg: string): string {
+						return `[LOG] ${msg}`;
+					}
+				}
+
+				class BillingService {
+					protected logger: Logger;
+
+					inject(container: DependencyContainer): void {
+						this.logger = container.require(Logger);
+					}
+
+					calculate(amount: number): number {
+						return amount * 0.9; // 10% discount
+					}
+				}
+
+				class PremiumBillingService extends BillingService {
+					override calculate(amount: number): number {
+						return amount * 0.75; // 25% discount
+					}
+				}
+
+				// Parent container
+				const parent = new DependencyContainer();
+				parent.register(Logger);
+				parent.register(BillingService);
+
+				// Get parent billing before child override
+				const parentBilling = parent.require(BillingService);
+				parentBilling.inject(parent);
+
+				// Child container overrides BillingService
+				const child = parent.extend();
+				child.register(BillingService, new PremiumBillingService());
+
+				// Child gets fresh instance with override
+				const childBilling = child.require(BillingService);
+				childBilling.inject(child);
+
+				// Verify different calculations
+				expect(parentBilling.calculate(100)).toBe(90);
+				expect(childBilling.calculate(100)).toBe(75);
+			});
+
+			it('parent and child have different instances', () => {
+				class Service {
+					id: string;
+
+					constructor(id: string) {
+						this.id = id;
+					}
+				}
+
+				const parent = new DependencyContainer();
+				parent.register(Service, new Service('parent'));
+
+				const parentService = parent.require(Service);
+				expect(parentService.id).toBe('parent');
+
+				const child = parent.extend();
+				child.register(Service, new Service('child'));
+
+				const childService = child.require(Service);
+				expect(childService.id).toBe('child');
+			});
+
+			it('child override injects properly with parent context', () => {
+				class Config {
+					value: string;
+
+					constructor(value: string) {
+						this.value = value;
+					}
+				}
+
+				class Consumer {
+					config: Config | undefined;
+
+					inject(container: DependencyContainer): void {
+						this.config = container.require(Config);
+					}
+				}
+
+				// Parent
+				const parent = new DependencyContainer();
+				parent.register(Config, new Config('parent'));
+				parent.register(Consumer);
+
+				const parentConsumer = parent.require(Consumer);
+				parentConsumer.inject(parent);
+
+				// Child with override
+				const child = parent.extend();
+				child.register(Config, new Config('child'));
+				child.register(Consumer);
+
+				const childConsumer = child.require(Consumer);
+				childConsumer.inject(child);
+
+				// Verify each has correct config
+				expect(parentConsumer.config?.value).toBe('parent');
+				expect(childConsumer.config?.value).toBe('child');
+			});
+
+			it('inject uses child container context', () => {
+				class Logger {
+					messages: string[] = [];
+				}
+
+				class Service {
+					logger: Logger | undefined;
+
+					inject(container: DependencyContainer): void {
+						this.logger = container.require(Logger);
+					}
+				}
+
+				// Parent
+				const parentLogger = new Logger();
+				const parent = new DependencyContainer();
+				parent.register(Logger, parentLogger);
+				parent.register(Service);
+				parent.inject();
+
+				const parentService = parent.require(Service);
+				expect(parentService.logger).toBe(parentLogger);
+
+				// Child with new logger - fresh container
+				const childLogger = new Logger();
+				const child = new DependencyContainer(parent);
+				child.register(Logger, childLogger);
+				child.register(Service);
+				child.inject();
+
+				const childService = child.require(Service);
+				expect(childService.logger).toBe(childLogger);
+			});
+
+			it('multi-level hierarchy with overrides', () => {
+				class Service {
+					level: string;
+
+					constructor(level: string) {
+						this.level = level;
+					}
+				}
+
+				// Level 1
+				const level1 = new DependencyContainer();
+				level1.register(Service, new Service('level1'));
+
+				const s1 = level1.require(Service);
+				expect(s1.level).toBe('level1');
+
+				// Level 2 overrides
+				const level2 = level1.extend();
+				level2.register(Service, new Service('level2'));
+
+				const s2 = level2.require(Service);
+				expect(s2.level).toBe('level2');
+
+				// Level 3 overrides
+				const level3 = level2.extend();
+				level3.register(Service, new Service('level3'));
+
+				const s3 = level3.require(Service);
+				expect(s3.level).toBe('level3');
+
+				// Parent levels still have original
+				expect(s1.level).toBe('level1');
+				expect(s2.level).toBe('level2');
+			});
+		});
+	});
+
+	describe('registerInstance()', () => {
+		let container: DependencyContainer;
+
+		beforeEach(() => {
+			container = new DependencyContainer();
+		});
+
+		it('should register an instance directly', () => {
+			const instance = { id: 123, name: 'test' };
+			container.registerInstance('Config', instance);
+
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const retrieved: any = container.require('Config');
+			expect(retrieved).toBe(instance);
+			expect(retrieved.id).toBe(123);
+		});
+
+		it('should register instance with class key', () => {
+			class Logger {
+				id = 'logger-1';
+			}
+
+			const logger = new Logger();
+			container.registerInstance(Logger, logger);
+
+			const retrieved = container.require(Logger);
+			expect(retrieved).toBe(logger);
+			expect(retrieved.id).toBe('logger-1');
+		});
+
+		it('should return same instance on multiple requires', () => {
+			const instance = { counter: 0 };
+			container.registerInstance('State', instance);
+
+			const first = container.require('State');
+			const second = container.require('State');
+
+			expect(first).toBe(second);
+			expect(first).toBe(instance);
+		});
+	});
+
+	describe('registerFactory()', () => {
+		let container: DependencyContainer;
+
+		beforeEach(() => {
+			container = new DependencyContainer();
+		});
+
+		it('should create new instance on each require', () => {
+			class Service {
+				id = Math.random();
+			}
+
+			container.registerFactory('Service', () => new Service());
+
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const first: any = container.require('Service');
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const second: any = container.require('Service');
+
+			expect(first).not.toBe(second);
+			expect(first.id).not.toBe(second.id);
+		});
+
+		it('should register factory with class key', () => {
+			class Repository {
+				id = Math.random();
+			}
+
+			container.registerFactory(Repository, () => new Repository());
+
+			const first = container.require(Repository);
+			const second = container.require(Repository);
+
+			expect(first).not.toBe(second);
+		});
+
+		it('should support factory with dependencies', () => {
+			class Logger {
+				log(msg: string): void {
+					// eslint-disable-next-line no-console
+					console.log(msg);
+				}
+			}
+
+			class Service {
+				constructor(private logger: Logger) {}
+
+				getName(): string {
+					return 'ServiceWithDeps';
+				}
+			}
+
+			container.register(Logger);
+			container.registerFactory(Service, () => {
+				const logger = container.require(Logger);
+				return new Service(logger);
+			});
+
+			const first = container.require(Service);
+			const second = container.require(Service);
+
+			expect(first).not.toBe(second);
+			expect(first.getName()).toBe('ServiceWithDeps');
+			expect(second.getName()).toBe('ServiceWithDeps');
+		});
+	});
+
+	describe('Missing dependency error handling', () => {
+		let container: DependencyContainer;
+
+		beforeEach(() => {
+			container = new DependencyContainer();
+		});
+
+		it('should throw error when requiring non-existent dependency', () => {
+			expect(() => {
+				container.require('NonExistent');
+			}).toThrowError(/Required dependency 'NonExistent' not found/);
+		});
+
+		it('should throw error for non-existent class dependency', () => {
+			class MissingService {}
+
+			expect(() => {
+				container.require(MissingService);
+			}).toThrowError(/Required dependency 'MissingService' not found/);
+		});
+
+		it('should return undefined for get() with missing dependency', () => {
+			const result = container.get('Missing');
+			expect(result).toBeUndefined();
+		});
+
+		it('should throw on getInjectableKey with invalid type', () => {
+			expect(() => {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				container.getInjectableKey(null as any);
+			}).toThrowError(/Cannot get key for injectable/);
+		});
+	});
+
+	describe('Parent container resolution', () => {
+		let container: DependencyContainer;
+
+		beforeEach(() => {
+			container = new DependencyContainer();
+		});
+
+		it('should resolve INSTANCE from parent', () => {
+			const instance = { data: 'shared' };
+			container.registerInstance('SharedData', instance);
+
+			const child = container.extend();
+
+			expect(child.require('SharedData')).toBe(instance);
+		});
+
+		it('should resolve FACTORY from parent', () => {
+			let count = 0;
+			container.registerFactory('Counter', () => ++count);
+
+			const child = container.extend();
+
+			expect(child.require('Counter')).toBe(1);
+			expect(child.require('Counter')).toBe(2);
+			expect(container.require('Counter')).toBe(3);
+		});
+
+		it('should resolve CLASS from parent with fresh instance', () => {
+			class Service {
+				id = Math.random();
+			}
+
+			container.register(Service);
+
+			const child = container.extend();
+
+			const parentService = container.require(Service);
+			const childService = child.require(Service);
+
+			expect(parentService).not.toBe(childService);
+			expect(parentService.id).not.toBe(childService.id);
+		});
+
+		it('should cache CLASS instance in child after resolution', () => {
+			class Service {
+				id = Math.random();
+			}
+
+			container.register(Service);
+			const child = container.extend();
+
+			const first = child.require(Service);
+			const second = child.require(Service);
+
+			expect(first).toBe(second);
+		});
+	});
+
+	describe('Hierarchical injection with factories', () => {
+		let container: DependencyContainer;
+
+		beforeEach(() => {
+			container = new DependencyContainer();
+		});
+
+		it('should properly inject in child when parent uses factory', () => {
+			class Logger {
+				name = 'logger';
+			}
+
+			class Service implements HasDependencies {
+				logger: Logger | undefined;
+
+				inject(c: DependencyContainer): void {
+					this.logger = c.require(Logger);
+				}
+			}
+
+			container.registerFactory(Logger, () => new Logger());
+			container.register(Service);
+			container.inject();
+
+			const child = container.extend();
+			child.register(Logger);
+			child.register(Service);
+			child.inject();
+
+			const parentService = container.require(Service);
+			const childService = child.require(Service);
+
+			expect(parentService.logger).toBeDefined();
+			expect(childService.logger).toBeDefined();
+		});
+
+		it('should handle multiple levels with mixed registrations', () => {
+			interface Config {
+				level: string;
+			}
+
+			class Service implements HasDependencies {
+				config: Config | undefined;
+
+				inject(c: DependencyContainer): void {
+					this.config = c.get('Config');
+				}
+			}
+
+			// Level 0
+			const config0: Config = { level: 'level0' };
+			container.registerInstance('Config', config0);
+			container.register(Service);
+			container.inject();
+
+			// Level 1
+			const level1 = container.extend();
+			const config1: Config = { level: 'level1' };
+			level1.registerInstance('Config', config1);
+
+			// Level 2
+			const level2 = level1.extend();
+			level2.register(Service);
+			level2.inject();
+
+			const service0 = container.require(Service);
+			const service2 = level2.require(Service);
+
+			expect(service0.config?.level).toBe('level0');
+			expect(service2.config?.level).toBe('level1');
 		});
 	});
 });
