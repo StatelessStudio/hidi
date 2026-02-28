@@ -183,6 +183,113 @@ describe('State Management (pub/sub)', () => {
 		});
 	});
 
+	describe('subscribeMany()', () => {
+		it('should call callback when any subscribed state changes', () => {
+			container.registerState('username', 'Alice');
+			container.registerState('email', 'alice@example.com');
+			const callback = jasmine.createSpy('callback');
+
+			container.subscribeMany(['username', 'email'], callback);
+
+			const userState = container.getState('username');
+			userState.value = 'Bob';
+
+			expect(callback).toHaveBeenCalledWith('Bob', 'alice@example.com');
+		});
+
+		it('should provide all current state values as arguments', () => {
+			container.registerState('count', 0);
+			container.registerState('message', 'hello');
+			const callback = jasmine.createSpy('callback');
+
+			container.subscribeMany(['count', 'message'], callback);
+
+			const countState = container.getState('count');
+			countState.value = 5;
+
+			expect(callback).toHaveBeenCalledWith(5, 'hello');
+		});
+
+		it('should handle multiple state changes', () => {
+			container.registerState('first', 1);
+			container.registerState('second', 2);
+			container.registerState('third', 3);
+			const callback = jasmine.createSpy('callback');
+
+			container.subscribeMany(['first', 'second', 'third'], callback);
+
+			container.getState('second').value = 20;
+
+			expect(callback).toHaveBeenCalledWith(1, 20, 3);
+		});
+
+		it('returns unsubscribe function to remove all subscriptions', () => {
+			container.registerState('a', 1);
+			container.registerState('b', 2);
+			const callback = jasmine.createSpy('callback');
+
+			const unsubscribe = container.subscribeMany(['a', 'b'], callback);
+
+			container.getState('a').value = 10;
+			expect(callback).toHaveBeenCalledTimes(1);
+
+			unsubscribe();
+
+			container.getState('b').value = 20;
+			expect(callback).toHaveBeenCalledTimes(1);
+		});
+
+		it('should call callback for changes to any subscribed state', () => {
+			container.registerState('x', 'val1');
+			container.registerState('y', 'val2');
+			const callback = jasmine.createSpy('callback');
+
+			container.subscribeMany(['x', 'y'], callback);
+
+			container.getState('x').value = 'newX';
+			expect(callback).toHaveBeenCalledWith('newX', 'val2');
+
+			container.getState('y').value = 'newY';
+			expect(callback).toHaveBeenCalledWith('newX', 'newY');
+
+			expect(callback).toHaveBeenCalledTimes(2);
+		});
+
+		it('should work with empty keys array', () => {
+			const callback = jasmine.createSpy('callback');
+
+			container.subscribeMany([], callback);
+
+			expect(callback).not.toHaveBeenCalled();
+		});
+
+		it('should work with single state key', () => {
+			container.registerState('single', 'value');
+			const callback = jasmine.createSpy('callback');
+
+			container.subscribeMany(['single'], callback);
+
+			container.getState('single').value = 'updated';
+
+			expect(callback).toHaveBeenCalledWith('updated');
+		});
+
+		it('should support multiple subscribers to the same states', () => {
+			container.registerState('state1', 'a');
+			container.registerState('state2', 'b');
+			const callback1 = jasmine.createSpy('callback1');
+			const callback2 = jasmine.createSpy('callback2');
+
+			container.subscribeMany(['state1', 'state2'], callback1);
+			container.subscribeMany(['state1', 'state2'], callback2);
+
+			container.getState('state1').value = 'x';
+
+			expect(callback1).toHaveBeenCalledWith('x', 'b');
+			expect(callback2).toHaveBeenCalledWith('x', 'b');
+		});
+	});
+
 	describe('Hierarchical State (container inheritance)', () => {
 		it('should allow child container to access parent state', () => {
 			const parent = new DependencyContainer();

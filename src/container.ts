@@ -267,6 +267,28 @@ export class DependencyContainer {
 	}
 
 	/**
+	 * Subscribe to multiple state changes with a single callback.
+	 * @param keys The state keys to subscribe to
+	 * @param callback Function to call when any subscribed state changes,
+	 * 	receives all current state values as arguments
+	 * @returns An unsubscribe function that removes all subscriptions
+	 */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	public subscribeMany(
+		keys: InjectableKey[],
+		callback: (...values: unknown[]) => void
+	): () => void {
+		const unsubscribers = keys.map((key) =>
+			this.subscribe(key, () => {
+				const values = keys.map((k) => this.getState(k).value);
+				callback(...values);
+			})
+		);
+
+		return () => unsubscribers.forEach((fn) => fn());
+	}
+
+	/**
 	 * Create a child container that inherits from this one.
 	 * Child containers have independent state registrations.
 	 */

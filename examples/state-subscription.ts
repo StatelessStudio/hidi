@@ -318,6 +318,64 @@ function directSubscriptionExample(): void {
 	unsubscribe2();
 }
 
+/**
+ * Example: Subscribing to Multiple States
+ *
+ * This example demonstrates how to subscribe to multiple states with a single
+ * callback using subscribeMany(), which is useful for dependent state.
+ */
+function subscribeMultipleStatesExample(): void {
+	console.log('\n========================================');
+	console.log('Example 4: Subscribe to Multiple States');
+	console.log('========================================\n');
+
+	// Setup container and state
+	const container = new DependencyContainer();
+	container.register(Logger);
+
+	// Register multiple related state values
+	container.registerState('username', 'Alice');
+	container.registerState('isOnline', false);
+	container.registerState('messageCount', 0);
+
+	const logger = container.require(Logger);
+
+	// Subscribe to multiple states with a single callback
+	logger.log('Setting up multi-state subscription...');
+	const unsubscribe = container.subscribeMany(
+		['username', 'isOnline', 'messageCount'],
+		(username, isOnline, messageCount) => {
+			logger.log(
+				`User: ${username}, ` +
+					`Online: ${isOnline}, ` +
+					`Messages: ${messageCount}`
+			);
+		}
+	);
+
+	// Update states - callback fires each time any state changes
+	logger.log('\nUpdating username...');
+	container.getState('username').value = 'Bob';
+
+	logger.log('\nUpdating isOnline...');
+	container.getState('isOnline').value = true;
+
+	logger.log('\nUpdating messageCount...');
+	container.getState('messageCount').value = 5;
+
+	logger.log('\nUpdating multiple states...');
+	container.getState('username').value = 'Charlie';
+	container.getState('messageCount').value = 10;
+
+	logger.log('\nUnsubscribing from all states...');
+	unsubscribe();
+
+	logger.log('Updating states (callback should not fire)...');
+	container.getState('isOnline').value = false;
+
+	logger.log('(Multi-state listener was not called)');
+}
+
 // ============================================================================
 // Run Examples
 // ============================================================================
@@ -325,3 +383,4 @@ function directSubscriptionExample(): void {
 basicExample();
 hierarchicalExample();
 directSubscriptionExample();
+subscribeMultipleStatesExample();

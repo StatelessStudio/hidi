@@ -351,6 +351,44 @@ unsubscribe();
 counterState.value = 3; // No log (unsubscribed)
 ```
 
+### `subscribeMany(keys, callback)`
+
+Subscribe to multiple state changes with a single callback. The callback receives all current state values as arguments in the order the keys were provided.
+
+Returns an **unsubscribe function** that removes all subscriptions.
+
+This is useful for dependent state where you need to react to changes in multiple states:
+
+```typescript
+container.registerState('username', 'Alice');
+container.registerState('isOnline', false);
+container.registerState('messageCount', 0);
+
+// Subscribe to all three states with one callback
+const unsubscribe = container.subscribeMany(
+  ['username', 'isOnline', 'messageCount'],
+  (username, isOnline, messageCount) => {
+    console.log(`${username} is ${isOnline ? 'online' : 'offline'} with ${messageCount} messages`);
+  }
+);
+
+// Update states - callback fires each time any state changes
+container.getState('username').value = 'Bob';
+// Logs: "Bob is offline with 0 messages"
+
+container.getState('isOnline').value = true;
+// Logs: "Bob is online with 0 messages"
+
+container.getState('messageCount').value = 5;
+// Logs: "Bob is online with 5 messages"
+
+// Unsubscribe from all states
+unsubscribe();
+
+container.getState('username').value = 'Charlie';
+// No log (all listeners removed)
+```
+
 ### StateValue Reactive Wrapper
 
 `StateValue<T>` is a reactive wrapper around values that enables subscriptions:
