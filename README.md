@@ -7,11 +7,15 @@ Software Development by [Stateless Studio](https://stateless.studio)
 ## Features
 
 - 🎯 **Type-Safe** - Full TypeScript support with generic types for type-safe dependency retrieval
-- 🔑 **Flexible Key Registration** - Register dependencies using string keys or class constructors
 - 🌳 **Hierarchical Containers** - Support for parent-child container relationships with automatic fallback
+- 🔑 **Flexible Key Registration** - Register dependencies using string keys or class constructors
+- ⚙️ **Multiple Registration Types** - Register classes, instances, or factory functions with different caching behavior
+- 🔔 **Reactivity (Pub/Sub)** - Register stateful values and subscribe to changes with a simple pub/sub API
+- 🚀 **Fast & Efficient** - Optimized for performance with minimal overhead and fast lookups
+- 🧩 **Minimal API** - Focused set of methods for common dependency injection patterns without unnecessary complexity
+- 🔒 **No External Dependencies** - Zero dependencies for maximum compatibility and minimal bundle size
 - ⚡ **Lightweight** - Minimal API surface with zero external dependencies
 - 🧪 **Well-Tested** - 100% code coverage with comprehensive test suite
-- 📦 **Production-Ready** - Simple, predictable behavior for reliable dependency management
 
 ## Installation
 
