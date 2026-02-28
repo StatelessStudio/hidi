@@ -1,6 +1,5 @@
 import 'jasmine';
 import { DependencyContainer, HasDependencies } from '../../src';
-import './state-tests.spec';
 
 describe('hidi', () => {
 	describe('DependencyContainer', () => {
