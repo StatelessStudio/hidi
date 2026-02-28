@@ -1,3 +1,5 @@
+import { HasDependencies } from './has-dependencies';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Injectable<T = any> = T | (new (...args: any[]) => T);
 export type InjectableKey<T = any> =
@@ -6,9 +8,25 @@ export type InjectableKey<T = any> =
 	| (abstract new (...args: any[]) => T);
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+enum RegistrationType {
+	CLASS = 'class',
+	INSTANCE = 'instance',
+	FACTORY = 'factory',
+}
+
+interface Registration<T> {
+	type: RegistrationType;
+	value: T | (new () => T) | (() => T);
+}
+
 export class DependencyContainer {
+	protected dependencies: Map<
+		string,
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		Registration<any>
+	> = new Map();
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	protected dependencies: Map<string, Injectable> = new Map();
+	protected instances: Map<string, any> = new Map();
 	// eslint-disable-next-line no-use-before-define
 	protected parent?: DependencyContainer;
 
@@ -40,12 +58,51 @@ export class DependencyContainer {
 	}
 
 	/**
-	 * Register a dependency
-	 * @param key Explicit key (string or class type)
-	 * @param injectable The dependency value or class type
+	 * Register a class dependency (instantiated lazily, cached as singleton).
+	 * If implementation is not provided, uses the key as the implementation.
+	 * @param key The injectable key (string or class type)
+	 * @param implementation Optional class implementation (defaults to key)
 	 */
-	public register<T>(key: InjectableKey<T>, injectable: Injectable<T>): void {
-		this.dependencies.set(this.getInjectableKey(key), injectable);
+	public register<T>(
+		key: InjectableKey<T>,
+		implementation?: T | (new () => T)
+	): void {
+		const stringKey = this.getInjectableKey(key);
+		const value = implementation ?? key;
+		const type = this.isConstructor(value)
+			? RegistrationType.CLASS
+			: RegistrationType.INSTANCE;
+
+		this.dependencies.set(stringKey, {
+			type,
+			value,
+		});
+	}
+
+	/**
+	 * Register a pre-instantiated singleton dependency.
+	 * @param key The injectable key (string or class type)
+	 * @param instance The instance to register
+	 */
+	public registerInstance<T>(key: InjectableKey<T>, instance: T): void {
+		const stringKey = this.getInjectableKey(key);
+		this.dependencies.set(stringKey, {
+			type: RegistrationType.INSTANCE,
+			value: instance,
+		});
+	}
+
+	/**
+	 * Register a factory function that creates a new instance each time.
+	 * @param key The injectable key (string or class type)
+	 * @param factory The factory function
+	 */
+	public registerFactory<T>(key: InjectableKey<T>, factory: () => T): void {
+		const stringKey = this.getInjectableKey(key);
+		this.dependencies.set(stringKey, {
+			type: RegistrationType.FACTORY,
+			value: factory,
+		});
 	}
 
 	/**
@@ -55,12 +112,59 @@ export class DependencyContainer {
 	 */
 	public get<T>(injectable: InjectableKey<T>): T | undefined {
 		const key = this.getInjectableKey(injectable);
+		const registration = this.dependencies.get(key);
 
-		if (this.dependencies.has(key)) {
-			return this.dependencies.get(key);
+		if (registration) {
+			// Return cached instance if it exists
+			if (this.instances.has(key)) {
+				return this.instances.get(key);
+			}
+
+			// Resolve based on registration type
+			let instance: T;
+			if (registration.type === RegistrationType.CLASS) {
+				// CLASS type
+				instance = new registration.value();
+			}
+			else if (registration.type === RegistrationType.FACTORY) {
+				// FACTORY type
+				instance = registration.value();
+			}
+			else {
+				// INSTANCE type
+				instance = registration.value as T;
+			}
+
+			// Cache instance unless it's from a factory
+			if (registration.type !== RegistrationType.FACTORY) {
+				this.instances.set(key, instance);
+			}
+
+			return instance;
 		}
 
+		// Check parent container
 		if (this.parent) {
+			const parentRegistration = this.parent.dependencies.get(key);
+
+			// For CLASS types in parent, create fresh instance in this
+			// container. This ensures child's overridden dependencies
+			// inject properly.
+			if (
+				parentRegistration &&
+				parentRegistration.type === RegistrationType.CLASS
+			) {
+				// Return cached instance if already created in this container
+				if (this.instances.has(key)) {
+					return this.instances.get(key);
+				}
+
+				const instance = new parentRegistration.value();
+				this.instances.set(key, instance);
+				return instance;
+			}
+
+			// For INSTANCE and FACTORY types, use parent's resolution
 			return this.parent.get<T>(injectable);
 		}
 
@@ -108,5 +212,50 @@ export class DependencyContainer {
 	 */
 	public setParent(parent: DependencyContainer): void {
 		this.parent = parent;
+	}
+
+	/**
+	 * Resolve dependencies for classes that implement HasDependencies
+	 * @param instances Optional array of instances to inject. If not
+	 * provided, injects all registered dependencies in this container.
+	 */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	public inject(instances?: any[]): void {
+		const toInject = instances || Array.from(this.getAvailableKeys());
+
+		for (const key of toInject) {
+			const instance = this.get(key);
+
+			// Check if the dependency has an inject method
+			if (
+				instance &&
+				typeof (instance as HasDependencies).inject === 'function'
+			) {
+				(instance as HasDependencies).inject(this);
+			}
+		}
+	}
+
+	/**
+	 * Get all available registration keys from this container and parents
+	 */
+	private getAvailableKeys(): Set<string> {
+		const keys = new Set(this.dependencies.keys());
+
+		if (this.parent) {
+			for (const key of this.parent.dependencies.keys()) {
+				keys.add(key);
+			}
+		}
+
+		return keys;
+	}
+
+	protected isConstructor(value: unknown): boolean {
+		return (
+			typeof value === 'function' &&
+			value.prototype &&
+			value.prototype.constructor === value
+		);
 	}
 }
