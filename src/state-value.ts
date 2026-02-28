@@ -37,6 +37,15 @@ export class StateValue<T> {
 	}
 
 	/**
+	 * Updates the value using an updater function.
+	 * This prevents accidental mutations and enforces immutable patterns.
+	 * @param updater Function that receives current value and returns new value
+	 */
+	update(updater: (current: T) => T): void {
+		this.value = updater(this._value);
+	}
+
+	/**
 	 * Subscribes to value change notifications.
 	 * @param callback Function to call when value changes,
 	 * receives (newValue, oldValue)

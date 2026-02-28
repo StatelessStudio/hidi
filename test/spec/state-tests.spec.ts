@@ -343,5 +343,51 @@ describe('State Management (pub/sub)', () => {
 				expect(callback).toHaveBeenCalledWith(5, 0);
 			}
 		);
+
+		it('should update value using updater function', () => {
+			const state = container.registerState('count', 0);
+			const callback = jasmine.createSpy('callback');
+
+			container.subscribe('count', callback);
+
+			state.update((current) => current + 1);
+
+			expect(state.value).toBe(1);
+			expect(callback).toHaveBeenCalledWith(1, 0);
+		});
+
+		it('should support immutable object updates', () => {
+			const initialState = { count: 0, name: 'test' };
+			const state = container.registerState('object', initialState);
+			const callback = jasmine.createSpy('callback');
+
+			container.subscribe('object', callback);
+
+			state.update((current) => ({
+				...current,
+				count: current.count + 1,
+			}));
+
+			expect(state.value.count).toBe(1);
+			expect(state.value.name).toBe('test');
+			expect(callback).toHaveBeenCalledWith(
+				jasmine.objectContaining({ count: 1 }),
+				initialState
+			);
+		});
+
+		it('should notify all subscribers on update', () => {
+			const state = container.registerState('value', 10);
+			const callback1 = jasmine.createSpy('callback1');
+			const callback2 = jasmine.createSpy('callback2');
+
+			container.subscribe('value', callback1);
+			container.subscribe('value', callback2);
+
+			state.update((current) => current * 2);
+
+			expect(callback1).toHaveBeenCalledWith(20, 10);
+			expect(callback2).toHaveBeenCalledWith(20, 10);
+		});
 	});
 });

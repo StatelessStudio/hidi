@@ -378,6 +378,41 @@ appState.value = {
 };
 ```
 
+#### Immutable Updates with `update()`
+
+For complex state objects, use the `update()` method to apply immutable transformations:
+
+```typescript
+const counterState = container.registerState('counter', 0);
+
+// Update simple values
+counterState.update((current) => current + 1);
+
+// Update objects immutably
+class UserState {
+  name: string;
+  age: number;
+}
+
+const userState = container.registerState(UserState, {
+  name: 'John',
+  age: 30,
+});
+
+// Create new object with updated fields
+userState.update((current) => ({
+  ...current,
+  age: current.age + 1,
+}));
+
+// Update array state immutably
+const itemsState = container.registerState('items', ['a', 'b']);
+
+itemsState.update((current) => [...current, 'c']);
+```
+
+The `update()` method prevents accidental mutations and enforces immutable patterns. The updater function receives the current value and returns the new value, which is then set via the normal setter (notifying all subscribers).
+
 ### Practical Example: React to State Changes
 
 Create services that respond to state changes:
