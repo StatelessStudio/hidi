@@ -1,4 +1,5 @@
 import { HasDependencies } from './has-dependencies';
+import { StateValue } from './state-value';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Injectable<T = any> = T | (new (...args: any[]) => T);
@@ -27,6 +28,8 @@ export class DependencyContainer {
 	> = new Map();
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	protected instances: Map<string, any> = new Map();
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	protected states: Map<string, StateValue<any>> = new Map();
 	// eslint-disable-next-line no-use-before-define
 	protected parent?: DependencyContainer;
 
@@ -200,7 +203,94 @@ export class DependencyContainer {
 	}
 
 	/**
-	 * Create a child container that inherits from this one
+	 * Register a stateful value in the container.
+	 * @param key The state key (string or class type)
+	 * @param initialValue The initial value for the state
+	 * @returns The StateValue wrapper
+	 */
+	public registerState<T>(
+		key: InjectableKey<T>,
+		initialValue: T
+	): StateValue<T> {
+		const stringKey = this.getInjectableKey(key);
+		const stateValue = new StateValue(initialValue);
+		this.states.set(stringKey, stateValue);
+		return stateValue;
+	}
+
+	/**
+	 * Get a state value, searching up the parent chain if not found.
+	 * @param key The state key (string or class type)
+	 * @returns The StateValue wrapper
+	 * @throws Error if state is not found
+	 */
+	public getState<T>(key: InjectableKey<T>): StateValue<T> {
+		const stringKey = this.getInjectableKey(key);
+		const state = this.states.get(stringKey);
+
+		if (state) {
+			return state;
+		}
+
+		if (this.parent) {
+			return this.parent.getState<T>(key);
+		}
+
+		throw new Error(`State '${stringKey}' not found in container`);
+	}
+
+	/**
+	 * Check if a state exists in the container or its parents.
+	 * @param key The state key (string or class type)
+	 */
+	public hasState(key: InjectableKey): boolean {
+		const stringKey = this.getInjectableKey(key);
+		return (
+			(this.states.has(stringKey) || this.parent?.hasState(stringKey)) ??
+			false
+		);
+	}
+
+	/**
+	 * Subscribe to state changes.
+	 * @param key The state key (string or class type)
+	 * @param callback Function to call when state changes,
+	 * 	receives (newValue, oldValue)
+	 * @returns An unsubscribe function
+	 */
+	public subscribe<T>(
+		key: InjectableKey<T>,
+		callback: (newValue: T, oldValue: T) => void
+	): () => void {
+		const stateValue = this.getState<T>(key);
+		return stateValue.subscribe(callback);
+	}
+
+	/**
+	 * Subscribe to multiple state changes with a single callback.
+	 * @param keys The state keys to subscribe to
+	 * @param callback Function to call when any subscribed state changes,
+	 * 	receives all current state values as arguments
+	 * @returns An unsubscribe function that removes all subscriptions
+	 */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	public subscribeMany(
+		keys: InjectableKey[],
+		callback: (...values: unknown[]) => void
+	): () => void {
+		const unsubscribers = keys.map((key) =>
+			this.subscribe(key, () => {
+				const values = keys.map((k) => this.getState(k).value);
+				callback(...values);
+			})
+		);
+
+		return () => unsubscribers.forEach((fn) => fn());
+	}
+
+	/**
+	 * Create a child container that inherits from this one.
+	 * Child containers have independent state registrations.
 	 */
 	public extend(): DependencyContainer {
 		return new DependencyContainer(this);
