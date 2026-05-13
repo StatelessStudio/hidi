@@ -71,7 +71,7 @@ export class DependencyContainer {
 		implementation?: T | (new () => T)
 	): void {
 		const stringKey = this.getInjectableKey(key);
-		const value = implementation ?? key;
+		const value = implementation === undefined ? key : implementation;
 		const type = this.isConstructor(value)
 			? RegistrationType.CLASS
 			: RegistrationType.INSTANCE;

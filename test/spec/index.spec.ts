@@ -39,6 +39,13 @@ describe('hidi', () => {
 				const result = container.get<{ service: string }>('Service');
 				expect(result).toEqual(dep2);
 			});
+
+			it('should register null as a literal value', () => {
+				container.register('NullValue', null);
+
+				expect(container.has('NullValue')).toBeTrue();
+				expect(container.get('NullValue')).toBeNull();
+			});
 		});
 
 		describe('get()', () => {
