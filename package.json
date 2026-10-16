@@ -1,53 +1,31 @@
 {
-	"name": "{{project-name}}",
+	"name": "{{ remrg:var project-name }}",
 	"version": "1.0.0",
-	"description": "{{project-name}}",
-	"private": "true",
-	"typescript-template": {
-		"base": "1.0.1",
-		"jasmine": "1.0.0",
-		"library": "1.0.0"
-	},
+	"description": "",
+	"author": "{{ remrg:var organization }}",
+	"license": "{{ remrg:var license }}",
 	"scripts": {
-		"build": "tsc",
-		"start": "ts-node examples/index",
-		"test": "npm run lint && npm run build && nyc npm run test:run",
-		"test:run": "jasmine --config=jasmine.json",
-		"test:dev": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine.dev.json",
-		"doc": "typedoc --out docs/typedoc src",
-		"format": "prettier-eslint --write **/*.*",
-		"lint": "eslint .",
-		"lint:prod": "npm run lint -- --config=.eslintrc.prod.json",
-		"script": "ts-node scripts",
-		"publish": "npm run script -- publish"
+		"build": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
+		"dev": "tsc -p tsconfig.json --watch",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"lint": "eslint . --fix && prettier --write .",
+		"lint:check": "prettier --check . && eslint .",
+		"test": "npm run lint && npm run typecheck"
 	},
+	"engines": {
+		"node": ">=22.0.0",
+		"npm": ">=10.8.2"
+	},
+	"dependencies": {},
 	"devDependencies": {
-		"@istanbuljs/nyc-config-typescript": "^1.0.2",
-		"@types/jasmine": "^5.1.4",
-		"@types/node": "^18.19.39",
-		"@typescript-eslint/eslint-plugin": "^7.13.1",
-		"eslint": "^8.57.0",
-		"jasmine": "^5.1.0",
-		"nyc": "^17.0.0",
-		"prettier": "^3.3.2",
-		"prettier-eslint": "^16.3.0",
-		"prettier-eslint-cli": "^8.0.1",
-		"ts-node": "^10.9.2",
-		"ts-packager": "^1.1.0",
-		"ts-script": "^1.0.0",
-		"ts-tiny-log": "^1.1.1",
-		"typedoc": "^0.26.1",
-		"typescript": "~5.4.2"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/{{project-org}}/{{project-name}}.git"
-	},
-	"author": "{{project-org}}",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/{{project-org}}/{{project-name}}/issues"
-	},
-	"homepage": "https://github.com/{{project-org}}/{{project-name}}#readme",
-	"keywords": []
+		"@eslint/js": "^10.0.1",
+		"@types/node": "^22.19.17",
+		"@typescript-eslint/eslint-plugin": "^8.57.2",
+		"@typescript-eslint/parser": "^8.57.2",
+		"eslint": "^10.1.0",
+		"prettier": "^3.8.1",
+		"prettier-plugin-brace-style": "^0.10.1",
+		"tsc-alias": "^1.9.2",
+		"typescript": "^5.9.3"
+	}
 }
