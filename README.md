@@ -1,5 +1,11 @@
-# {{project-name}} - Readme
+# {{ remrg:var project-name }}
 
-## Contributing & Development
+{{ remrg:task Write a brief project description }}
 
-See [contributing.md](docs/contributing/contributing.md) for information on how to develop or contribute to this project!
+## Getting Started
+
+Read the [Getting Started Guide](./docs/guides/getting-started.md) to get started.
+
+## License
+
+Licensed under the [{{ remrg:var license }}](LICENSE.md).

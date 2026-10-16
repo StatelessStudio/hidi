@@ -1,8 +1,0 @@
-.eslintrc.js
-.vscode/
-dist/
-doc/
-doc*/
-node_modules/
-
-*.md

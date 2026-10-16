@@ -1,0 +1,19 @@
+name: remrg/base-code
+track: branch/remrg/v1
+version: 1.0.0
+description: 'base remrg code template'
+type: base
+license: MIT
+access: public
+
+variables:
+  project-name:
+    type: string
+    description: 'The name of the project'
+  organization:
+    type: string
+    description: 'The name of the project organization'
+  license:
+    type: string
+    description: 'The license for the project (e.g., MIT, Apache-2.0)'
+    default: 'MIT'

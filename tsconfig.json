@@ -1,27 +1,27 @@
 {
-	"compileOnSave": false,
 	"compilerOptions": {
+		"rootDir": "./",
 		"outDir": "./dist",
-		"strict": true,
-		"noImplicitAny": true,
-		"noImplicitOverride": true,
-		"noPropertyAccessFromIndexSignature": true,
-		"strictPropertyInitialization": false,
-		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true,
+		"target": "es2022",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
 		"skipLibCheck": true,
 		"esModuleInterop": true,
-		"sourceMap": true,
-		"declaration": false,
-		"module": "commonjs",
-		"moduleResolution": "node",
-		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true,
-		"importHelpers": true,
-		"target": "ES2022",
-		"types": ["node"],
-		"lib": ["ES2022"]
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"strict": true,
+		"noImplicitAny": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noFallthroughCasesInSwitch": true,
+		"forceConsistentCasingInFileNames": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"useUnknownInCatchVariables": true,
+		"types": [],
+		"paths": {
+			"@/*": ["./src/*"]
+		}
 	},
-	"exclude": ["./dist/"],
-	"include": ["./scripts", "./src/", "./test/"]
+	"include": ["src", "test"],
+	"exclude": ["node_modules", "dist"]
 }
