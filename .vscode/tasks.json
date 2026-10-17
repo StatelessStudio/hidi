@@ -2,14 +2,84 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "npm",
-			"script": "build",
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
+			"label": "npm run build",
+			"type": "shell",
+			"command": "npm",
+			"args": ["run", "build"],
 			"problemMatcher": [],
-			"label": "npm: build"
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"group": "build"
+		},
+		{
+			"label": "npm run dev",
+			"type": "shell",
+			"command": "npm",
+			"args": ["run", "dev"],
+			"problemMatcher": [],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"group": "build"
+		},
+		{
+			"label": "npm run format",
+			"type": "shell",
+			"command": "npm",
+			"args": ["run", "format"],
+			"problemMatcher": [],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
+		},
+		{
+			"label": "npm run lint",
+			"type": "shell",
+			"command": "npm",
+			"args": ["run", "lint"],
+			"problemMatcher": [],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
+		},
+		{
+			"label": "npm run test:dev",
+			"type": "shell",
+			"command": "npm",
+			"args": ["run", "test:dev"],
+			"problemMatcher": [],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
+		},
+		{
+			"label": "npm run test:run",
+			"type": "shell",
+			"command": "npm",
+			"args": ["run", "test:run"],
+			"problemMatcher": [],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
 		}
 	]
 }

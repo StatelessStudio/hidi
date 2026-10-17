@@ -1,5 +1,5 @@
 // State Management Tests - AppendedTo index.spec.ts
-import 'jasmine';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DependencyContainer } from '../../src';
 
 describe('State Management (pub/sub)', () => {
@@ -13,7 +13,7 @@ describe('State Management (pub/sub)', () => {
 		it('should register state with a string key', () => {
 			container.registerState('counter', 0);
 
-			expect(container.hasState('counter')).toBeTrue();
+			expect(container.hasState('counter')).toBe(true);
 		});
 
 		it('should register state with a class type as key', () => {
@@ -23,7 +23,7 @@ describe('State Management (pub/sub)', () => {
 
 			container.registerState(UserState, { name: 'John' });
 
-			expect(container.hasState(UserState)).toBeTrue();
+			expect(container.hasState(UserState)).toBe(true);
 		});
 
 		it('should return a StateValue wrapper', () => {
@@ -72,7 +72,7 @@ describe('State Management (pub/sub)', () => {
 
 		it('should throw error for non-existent state', () => {
 			expect(() => container.getState('nonexistent')).toThrowError(
-				'State \'nonexistent\' not found in container'
+				"State 'nonexistent' not found in container"
 			);
 		});
 
@@ -90,11 +90,11 @@ describe('State Management (pub/sub)', () => {
 		it('should return true for registered state', () => {
 			container.registerState('test', 'value');
 
-			expect(container.hasState('test')).toBeTrue();
+			expect(container.hasState('test')).toBe(true);
 		});
 
 		it('should return false for non-existent state', () => {
-			expect(container.hasState('missing')).toBeFalse();
+			expect(container.hasState('missing')).toBe(false);
 		});
 
 		it('should check parent container state', () => {
@@ -103,14 +103,14 @@ describe('State Management (pub/sub)', () => {
 
 			const child = parent.extend();
 
-			expect(child.hasState('shared')).toBeTrue();
+			expect(child.hasState('shared')).toBe(true);
 		});
 	});
 
 	describe('subscribe()', () => {
 		it('should call callback when state value changes', () => {
 			const state = container.registerState('counter', 0);
-			const callback = jasmine.createSpy('callback');
+			const callback = vi.fn();
 
 			container.subscribe('counter', callback);
 			state.value = 1;
@@ -120,7 +120,7 @@ describe('State Management (pub/sub)', () => {
 
 		it('should provide new and old values to callback', () => {
 			const state = container.registerState('message', 'hello');
-			const callback = jasmine.createSpy('callback');
+			const callback = vi.fn();
 
 			container.subscribe('message', callback);
 			state.value = 'world';
@@ -130,8 +130,8 @@ describe('State Management (pub/sub)', () => {
 
 		it('should support multiple subscribers', () => {
 			const state = container.registerState('value', 'initial');
-			const callback1 = jasmine.createSpy('callback1');
-			const callback2 = jasmine.createSpy('callback2');
+			const callback1 = vi.fn();
+			const callback2 = vi.fn();
 
 			container.subscribe('value', callback1);
 			container.subscribe('value', callback2);
@@ -143,7 +143,7 @@ describe('State Management (pub/sub)', () => {
 
 		it('should return an unsubscribe function', () => {
 			const state = container.registerState('count', 0);
-			const callback = jasmine.createSpy('callback');
+			const callback = vi.fn();
 
 			const unsubscribe = container.subscribe('count', callback);
 			state.value = 1;
@@ -160,7 +160,7 @@ describe('State Management (pub/sub)', () => {
 		it('should throw error when subscribing to non-existent state', () => {
 			expect(() => {
 				container.subscribe('missing', () => {});
-			}).toThrowError('State \'missing\' not found in container');
+			}).toThrowError("State 'missing' not found in container");
 		});
 
 		it('should support subscription from class type key', () => {
@@ -171,7 +171,7 @@ describe('State Management (pub/sub)', () => {
 			const state = container.registerState(AppState, {
 				isLoading: false,
 			});
-			const callback = jasmine.createSpy('callback');
+			const callback = vi.fn();
 
 			container.subscribe(AppState, callback);
 			state.value = { isLoading: true };
@@ -187,7 +187,7 @@ describe('State Management (pub/sub)', () => {
 		it('should call callback when any subscribed state changes', () => {
 			container.registerState('username', 'Alice');
 			container.registerState('email', 'alice@example.com');
-			const callback = jasmine.createSpy('callback');
+			const callback = vi.fn();
 
 			container.subscribeMany(['username', 'email'], callback);
 
@@ -200,7 +200,7 @@ describe('State Management (pub/sub)', () => {
 		it('should provide all current state values as arguments', () => {
 			container.registerState('count', 0);
 			container.registerState('message', 'hello');
-			const callback = jasmine.createSpy('callback');
+			const callback = vi.fn();
 
 			container.subscribeMany(['count', 'message'], callback);
 
@@ -214,7 +214,7 @@ describe('State Management (pub/sub)', () => {
 			container.registerState('first', 1);
 			container.registerState('second', 2);
 			container.registerState('third', 3);
-			const callback = jasmine.createSpy('callback');
+			const callback = vi.fn();
 
 			container.subscribeMany(['first', 'second', 'third'], callback);
 
@@ -226,7 +226,7 @@ describe('State Management (pub/sub)', () => {
 		it('returns unsubscribe function to remove all subscriptions', () => {
 			container.registerState('a', 1);
 			container.registerState('b', 2);
-			const callback = jasmine.createSpy('callback');
+			const callback = vi.fn();
 
 			const unsubscribe = container.subscribeMany(['a', 'b'], callback);
 
@@ -242,7 +242,7 @@ describe('State Management (pub/sub)', () => {
 		it('should call callback for changes to any subscribed state', () => {
 			container.registerState('x', 'val1');
 			container.registerState('y', 'val2');
-			const callback = jasmine.createSpy('callback');
+			const callback = vi.fn();
 
 			container.subscribeMany(['x', 'y'], callback);
 
@@ -256,7 +256,7 @@ describe('State Management (pub/sub)', () => {
 		});
 
 		it('should work with empty keys array', () => {
-			const callback = jasmine.createSpy('callback');
+			const callback = vi.fn();
 
 			container.subscribeMany([], callback);
 
@@ -265,7 +265,7 @@ describe('State Management (pub/sub)', () => {
 
 		it('should work with single state key', () => {
 			container.registerState('single', 'value');
-			const callback = jasmine.createSpy('callback');
+			const callback = vi.fn();
 
 			container.subscribeMany(['single'], callback);
 
@@ -277,8 +277,8 @@ describe('State Management (pub/sub)', () => {
 		it('should support multiple subscribers to the same states', () => {
 			container.registerState('state1', 'a');
 			container.registerState('state2', 'b');
-			const callback1 = jasmine.createSpy('callback1');
-			const callback2 = jasmine.createSpy('callback2');
+			const callback1 = vi.fn();
+			const callback2 = vi.fn();
 
 			container.subscribeMany(['state1', 'state2'], callback1);
 			container.subscribeMany(['state1', 'state2'], callback2);
@@ -308,9 +308,9 @@ describe('State Management (pub/sub)', () => {
 			const child = parent.extend();
 			child.registerState('childKey', 'childValue');
 
-			expect(parent.hasState('childKey')).toBeFalse();
-			expect(child.hasState('childKey')).toBeTrue();
-			expect(child.hasState('sharedKey')).toBeTrue();
+			expect(parent.hasState('childKey')).toBe(false);
+			expect(child.hasState('childKey')).toBe(true);
+			expect(child.hasState('sharedKey')).toBe(true);
 		});
 
 		it('should allow child to override parent state independently', () => {
@@ -344,7 +344,7 @@ describe('State Management (pub/sub)', () => {
 			const parentState = parent.registerState('shared', 'initial');
 
 			const child = parent.extend();
-			const callback = jasmine.createSpy('callback');
+			const callback = vi.fn();
 
 			child.subscribe('shared', callback);
 			parentState.value = 'updated';
@@ -374,8 +374,7 @@ describe('State Management (pub/sub)', () => {
 		});
 
 		it(
-			'should support deep nesting of containers with ' +
-				'independent state',
+			'should support deep nesting of containers with ' + 'independent state',
 			() => {
 				const root = new DependencyContainer();
 				root.registerState('level', 0);
@@ -407,7 +406,7 @@ describe('State Management (pub/sub)', () => {
 
 		it('should notify subscribers on multiple updates', () => {
 			const state = container.registerState('value', 1);
-			const callback = jasmine.createSpy('callback');
+			const callback = vi.fn();
 
 			container.subscribe('value', callback);
 
@@ -424,7 +423,7 @@ describe('State Management (pub/sub)', () => {
 		it('should handle complex type mutations', () => {
 			const initialArray = [1, 2, 3];
 			const state = container.registerState('items', [...initialArray]);
-			const callback = jasmine.createSpy('callback');
+			const callback = vi.fn();
 
 			container.subscribe('items', callback);
 
@@ -442,7 +441,7 @@ describe('State Management (pub/sub)', () => {
 				const registered = container.registerState('count', 0);
 				const retrieved = container.getState('count');
 
-				const callback = jasmine.createSpy('callback');
+				const callback = vi.fn();
 				registered.subscribe(callback);
 
 				retrieved.value = 5;
@@ -453,7 +452,7 @@ describe('State Management (pub/sub)', () => {
 
 		it('should update value using updater function', () => {
 			const state = container.registerState('count', 0);
-			const callback = jasmine.createSpy('callback');
+			const callback = vi.fn();
 
 			container.subscribe('count', callback);
 
@@ -466,7 +465,7 @@ describe('State Management (pub/sub)', () => {
 		it('should support immutable object updates', () => {
 			const initialState = { count: 0, name: 'test' };
 			const state = container.registerState('object', initialState);
-			const callback = jasmine.createSpy('callback');
+			const callback = vi.fn();
 
 			container.subscribe('object', callback);
 
@@ -478,15 +477,15 @@ describe('State Management (pub/sub)', () => {
 			expect(state.value.count).toBe(1);
 			expect(state.value.name).toBe('test');
 			expect(callback).toHaveBeenCalledWith(
-				jasmine.objectContaining({ count: 1 }),
+				expect.objectContaining({ count: 1 }),
 				initialState
 			);
 		});
 
 		it('should notify all subscribers on update', () => {
 			const state = container.registerState('value', 10);
-			const callback1 = jasmine.createSpy('callback1');
-			const callback2 = jasmine.createSpy('callback2');
+			const callback1 = vi.fn();
+			const callback2 = vi.fn();
 
 			container.subscribe('value', callback1);
 			container.subscribe('value', callback2);

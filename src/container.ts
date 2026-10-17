@@ -4,9 +4,7 @@ import { StateValue } from './state-value';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Injectable<T = any> = T | (new (...args: any[]) => T);
 export type InjectableKey<T = any> =
-	| string
-	| (new (...args: any[]) => T)
-	| (abstract new (...args: any[]) => T);
+	string | (new (...args: any[]) => T) | (abstract new (...args: any[]) => T);
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 enum RegistrationType {
@@ -30,10 +28,9 @@ export class DependencyContainer {
 	protected instances: Map<string, any> = new Map();
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	protected states: Map<string, StateValue<any>> = new Map();
-	// eslint-disable-next-line no-use-before-define
+
 	protected parent?: DependencyContainer;
 
-	// eslint-disable-next-line no-use-before-define
 	constructor(parent?: DependencyContainer) {
 		this.parent = parent;
 	}
@@ -185,9 +182,7 @@ export class DependencyContainer {
 		if (value === undefined) {
 			const name = this.getInjectableKey(injectable);
 
-			throw new Error(
-				`Required dependency '${name}' not found in container`
-			);
+			throw new Error(`Required dependency '${name}' not found in container`);
 		}
 
 		return value;
@@ -246,8 +241,7 @@ export class DependencyContainer {
 	public hasState(key: InjectableKey): boolean {
 		const stringKey = this.getInjectableKey(key);
 		return (
-			(this.states.has(stringKey) || this.parent?.hasState(stringKey)) ??
-			false
+			(this.states.has(stringKey) || this.parent?.hasState(stringKey)) ?? false
 		);
 	}
 
@@ -273,7 +267,6 @@ export class DependencyContainer {
 	 * 	receives all current state values as arguments
 	 * @returns An unsubscribe function that removes all subscriptions
 	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	public subscribeMany(
 		keys: InjectableKey[],
 		callback: (...values: unknown[]) => void

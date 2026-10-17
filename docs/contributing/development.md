@@ -1,29 +1,19 @@
 # Development
 
-Run a dev test with `npm start`.
+## Setup
 
-## Running Tests
+Follow the [Setup Guide](./setup.md) to set-up your project.
 
-To run unit tests, `npm run test`
+## Development
 
-## Scripts
+- Follow the [Contributing Guide](../../CONTRIBUTING.md).
+- Run `npm run dev`
 
-You can write custom scripts in the `script/` directory. See `script/example.ts` as an example.
+## Code Analysis, Linting & Formatting
 
-Run your script with `npm run script -- example`
+Run `npm run lint` before you commit your code.
 
-## Compiling
+## Testing & Validation
 
-### Debug Builds
-
-To compile a debug build, run `npm run build`. The build output will appear in the `./dist` folder.
-
-### Prod Builds
-
-To compile a production build, run `npm run lint:prod && npm run build`. The build output will appear in the `./dist` folder.
-
-## More
-
-### Generating Docs
-
-`npm run doc` and browse docs/index.html!
+- Run `npm test` to lint & test your code.
+- Run `npm run build` to build for production and `npm run preview` for a local server (do not expose this local server)

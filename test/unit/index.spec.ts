@@ -1,4 +1,4 @@
-import 'jasmine';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { DependencyContainer, HasDependencies } from '../../src';
 
 describe('hidi', () => {
@@ -14,7 +14,7 @@ describe('hidi', () => {
 				const dependency = { service: 'test' };
 				container.register('TestService', dependency);
 
-				expect(container.has('TestService')).toBeTrue();
+				expect(container.has('TestService')).toBe(true);
 			});
 
 			it('should register with class constructor as key', () => {
@@ -26,7 +26,7 @@ describe('hidi', () => {
 				const instance = new MyService();
 				container.register(MyService, instance);
 
-				expect(container.has(MyService)).toBeTrue();
+				expect(container.has(MyService)).toBe(true);
 			});
 
 			it('should overwrite existing dependency with same key', () => {
@@ -43,7 +43,7 @@ describe('hidi', () => {
 			it('should register null as a literal value', () => {
 				container.register('NullValue', null);
 
-				expect(container.has('NullValue')).toBeTrue();
+				expect(container.has('NullValue')).toBe(true);
 				expect(container.get('NullValue')).toBeNull();
 			});
 		});
@@ -80,9 +80,7 @@ describe('hidi', () => {
 				container.register('ParentService', parentDep);
 
 				const childContainer = container.extend();
-				const result = childContainer.get<{ value: string }>(
-					'ParentService'
-				);
+				const result = childContainer.get<{ value: string }>('ParentService');
 
 				expect(result).toEqual(parentDep);
 			});
@@ -105,9 +103,7 @@ describe('hidi', () => {
 				const dependency = { value: 'test' };
 				container.register('RequiredService', dependency);
 
-				const result = container.require<{ value: string }>(
-					'RequiredService'
-				);
+				const result = container.require<{ value: string }>('RequiredService');
 				expect(result).toEqual(dependency);
 			});
 
@@ -115,7 +111,7 @@ describe('hidi', () => {
 				expect(() => {
 					container.require('NonExistent');
 				}).toThrowError(
-					'Required dependency \'NonExistent\' not found in container'
+					"Required dependency 'NonExistent' not found in container"
 				);
 			});
 
@@ -135,16 +131,16 @@ describe('hidi', () => {
 		describe('has()', () => {
 			it('should return true for existing dependency', () => {
 				container.register('Service', { value: 'test' });
-				expect(container.has('Service')).toBeTrue();
+				expect(container.has('Service')).toBe(true);
 			});
 
 			it('should return false for non-existing dependency', () => {
-				expect(container.has('NonExistent')).toBeFalse();
+				expect(container.has('NonExistent')).toBe(false);
 			});
 
 			it('should check by string key', () => {
 				container.register('Service', { value: 'test' });
-				expect(container.has('Service')).toBeTrue();
+				expect(container.has('Service')).toBe(true);
 			});
 
 			it('should check by injectable object', () => {
@@ -156,7 +152,7 @@ describe('hidi', () => {
 				const instance = new Service();
 				container.register(Service, instance);
 
-				expect(container.has(Service)).toBeTrue();
+				expect(container.has(Service)).toBe(true);
 			});
 
 			it('should search parent container chain', () => {
@@ -164,16 +160,14 @@ describe('hidi', () => {
 				container.register('ParentService', parentDep);
 
 				const childContainer = container.extend();
-				expect(childContainer.has('ParentService')).toBeTrue();
+				expect(childContainer.has('ParentService')).toBe(true);
 			});
 		});
 
 		describe('extend()', () => {
 			it('should create a child container', () => {
 				const childContainer = container.extend();
-				expect(childContainer).toEqual(
-					jasmine.any(DependencyContainer)
-				);
+				expect(childContainer).toEqual(expect.any(DependencyContainer));
 			});
 
 			it('should inherit from parent container', () => {
@@ -181,9 +175,7 @@ describe('hidi', () => {
 				container.register('ParentService', parentDep);
 
 				const childContainer = container.extend();
-				const result = childContainer.get<{ value: string }>(
-					'ParentService'
-				);
+				const result = childContainer.get<{ value: string }>('ParentService');
 				expect(result).toEqual(parentDep);
 			});
 
@@ -195,12 +187,8 @@ describe('hidi', () => {
 				const childContainer = container.extend();
 				childContainer.register('Service', childDep);
 
-				const childResult = childContainer.get<{ value: string }>(
-					'Service'
-				);
-				const parentResult = container.get<{ value: string }>(
-					'Service'
-				);
+				const childResult = childContainer.get<{ value: string }>('Service');
+				const parentResult = container.get<{ value: string }>('Service');
 				expect(childResult).toEqual(childDep);
 				expect(parentResult).toEqual(parentDep);
 			});
@@ -210,8 +198,8 @@ describe('hidi', () => {
 				const childContainer = container.extend();
 				childContainer.register('ChildService', childDep);
 
-				expect(container.has('ChildService')).toBeFalse();
-				expect(childContainer.has('ChildService')).toBeTrue();
+				expect(container.has('ChildService')).toBe(false);
+				expect(childContainer.has('ChildService')).toBe(true);
 			});
 
 			it('should support multiple levels of nesting', () => {
@@ -231,7 +219,7 @@ describe('hidi', () => {
 				expect(s1).toEqual(level1Dep);
 				expect(s2).toEqual(level2Dep);
 				expect(s3).toEqual(level3Dep);
-				expect(level2.has('Service3')).toBeFalse();
+				expect(level2.has('Service3')).toBe(false);
 			});
 		});
 
@@ -272,9 +260,7 @@ describe('hidi', () => {
 				const parentDep = { value: 'parent' };
 				parentContainer.register('ParentService', parentDep);
 
-				const result = childContainer.get<{ value: string }>(
-					'ParentService'
-				);
+				const result = childContainer.get<{ value: string }>('ParentService');
 				expect(result).toEqual(parentDep);
 			});
 
@@ -322,8 +308,7 @@ describe('hidi', () => {
 			});
 
 			it(
-				'should support multiple implementations with ' +
-					'different keys',
+				'should support multiple implementations with ' + 'different keys',
 				() => {
 					class Transport {
 						send(data: string) {
@@ -350,8 +335,7 @@ describe('hidi', () => {
 					container.register('WebSocketTransport', wsTransport);
 
 					const http = container.get<HttpTransport>('HttpTransport');
-					const ws =
-						container.get<WebSocketTransport>('WebSocketTransport');
+					const ws = container.get<WebSocketTransport>('WebSocketTransport');
 
 					expect(http?.send('data')).toBe('HTTP: data');
 					expect(ws?.send('data')).toBe('WS: data');
@@ -359,8 +343,7 @@ describe('hidi', () => {
 			);
 
 			it(
-				'should maintain instance type through container ' +
-					'hierarchy',
+				'should maintain instance type through container ' + 'hierarchy',
 				() => {
 					class Logger {
 						log(msg: string) {
@@ -390,8 +373,7 @@ describe('hidi', () => {
 			);
 
 			it(
-				'should allow override in child container with ' +
-					'different subclass',
+				'should allow override in child container with ' + 'different subclass',
 				() => {
 					class Repository {
 						getData() {
@@ -419,8 +401,7 @@ describe('hidi', () => {
 					testContainer.register('Repository', mockRepo);
 
 					const parentRepo = container.get<Repository>('Repository');
-					const testRepo =
-						testContainer.get<Repository>('Repository');
+					const testRepo = testContainer.get<Repository>('Repository');
 
 					expect(parentRepo?.getData()).toBe('db-data');
 					expect(testRepo?.getData()).toBe('mock-data');
@@ -453,8 +434,7 @@ describe('hidi', () => {
 			});
 
 			it(
-				'should allow registering base and extended versions ' +
-					'separately',
+				'should allow registering base and extended versions ' + 'separately',
 				() => {
 					class Service {
 						type = 'base';
@@ -494,8 +474,8 @@ describe('hidi', () => {
 				const user = new User();
 				container.register('User', user);
 
-				expect(container.has('User')).toBeTrue();
-				expect(container.has('Entity')).toBeFalse();
+				expect(container.has('User')).toBe(true);
+				expect(container.has('Entity')).toBe(false);
 			});
 
 			it('should allow polymorphic behavior with inheritance', () => {
@@ -593,8 +573,7 @@ describe('hidi', () => {
 				expect(() => {
 					container.require(NotRegistered);
 				}).toThrowError(
-					'Required dependency \'NotRegistered\' not found ' +
-						'in container'
+					"Required dependency 'NotRegistered' not found " + 'in container'
 				);
 			});
 
@@ -606,21 +585,18 @@ describe('hidi', () => {
 				const service = new MyService();
 				container.register(MyService, service);
 
-				expect(container.has(MyService)).toBeTrue();
+				expect(container.has(MyService)).toBe(true);
 			});
 
-			it(
-				'should return false from has() for non-registered ' + 'class',
-				() => {
-					class NotRegistered {
-						test() {
-							return 'test';
-						}
+			it('should return false from has() for non-registered ' + 'class', () => {
+				class NotRegistered {
+					test() {
+						return 'test';
 					}
-
-					expect(container.has(NotRegistered)).toBeFalse();
 				}
-			);
+
+				expect(container.has(NotRegistered)).toBe(false);
+			});
 
 			it('should support multiple class types as keys', () => {
 				class Transport {
@@ -849,7 +825,7 @@ describe('hidi', () => {
 				const service = new ServiceImpl();
 				container.register(Service, service);
 
-				expect(container.has(Service)).toBeTrue();
+				expect(container.has(Service)).toBe(true);
 			});
 
 			it('supports abstract class in parent container hierarchy', () => {
@@ -912,8 +888,7 @@ describe('hidi', () => {
 				expect(() => {
 					container.require(NotRegistered);
 				}).toThrowError(
-					'Required dependency \'NotRegistered\' not found ' +
-						'in container'
+					"Required dependency 'NotRegistered' not found " + 'in container'
 				);
 			});
 
@@ -956,7 +931,7 @@ describe('hidi', () => {
 				}
 
 				class BillingService {
-					protected logger: Logger;
+					protected logger!: Logger;
 
 					inject(container: DependencyContainer): void {
 						this.logger = container.require(Logger);

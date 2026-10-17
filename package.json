@@ -2,53 +2,66 @@
 	"name": "hidi",
 	"version": "2.2.0",
 	"description": "hidi",
-	"private": "true",
-	"typescript-template": {
-		"base": "1.0.1",
-		"jasmine": "1.0.0",
-		"library": "1.0.0"
-	},
-	"scripts": {
-		"build": "tsc",
-		"start": "ts-node examples/index",
-		"test": "npm run lint && npm run build && nyc npm run test:run",
-		"test:run": "jasmine --config=jasmine.json",
-		"test:dev": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine.dev.json",
-		"doc": "typedoc --out docs/typedoc src",
-		"format": "prettier-eslint --write **/*.*",
-		"lint": "eslint .",
-		"lint:prod": "npm run lint -- --config=.eslintrc.prod.json",
-		"script": "ts-node scripts",
-		"publish": "npm run script -- publish"
-	},
-	"devDependencies": {
-		"@istanbuljs/nyc-config-typescript": "^1.0.2",
-		"@types/jasmine": "^5.1.4",
-		"@types/node": "^18.19.39",
-		"@typescript-eslint/eslint-plugin": "^7.13.1",
-		"eslint": "^8.57.0",
-		"jasmine": "^5.1.0",
-		"nyc": "^17.0.0",
-		"prettier": "^3.3.2",
-		"prettier-eslint": "^16.3.0",
-		"prettier-eslint-cli": "^8.0.1",
-		"ts-node": "^10.9.2",
-		"ts-packager": "^1.1.0",
-		"ts-script": "^1.0.0",
-		"ts-tiny-log": "^1.1.1",
-		"typedoc": "^0.26.1",
-		"typescript": "~5.4.2"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/StatelessStudio/hidi.git"
-	},
-	"author": "Stateless Studio",
+	"author": "stateless-studio",
 	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/StatelessStudio/hidi/issues"
+	"type": "module",
+	"scripts": {
+		"build": "vite build",
+		"dev": "vite build --watch",
+		"prepare": "npm run build",
+		"preview": "vite preview",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"lint": "eslint . --fix && prettier --write .",
+		"lint:check": "prettier --check . && eslint .",
+		"test": "npm run lint && npm run typecheck && npm run test:run",
+		"test:ci": "npm run lint:check && npm run typecheck && npm run test:run",
+		"test:dev": "vitest --ui --coverage",
+		"test:run": "vitest run --coverage"
 	},
-	"homepage": "https://github.com/StatelessStudio/hidi#readme",
+	"engines": {
+		"node": ">=22.0.0",
+		"npm": ">=10.8.2"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"@eslint/js": "^10.0.1",
+		"@types/node": "^22.19.17",
+		"@typescript-eslint/eslint-plugin": "^8.57.2",
+		"@typescript-eslint/parser": "^8.57.2",
+		"@vitest/coverage-v8": "^4.1.2",
+		"@vitest/ui": "^4.1.2",
+		"eslint": "^10.1.0",
+		"fast-glob": "^3.3.3",
+		"globals": "^17.6.0",
+		"prettier": "^3.8.1",
+		"prettier-plugin-brace-style": "^0.10.1",
+		"terser": "^5.46.1",
+		"typescript": "^5.9.3",
+		"vite": "^8.0.9",
+		"vite-plugin-dts": "^4.5.4",
+		"vitest": "^4.1.2"
+	},
+	"main": "./dist/src/index.cjs",
+	"module": "./dist/src/index.mjs",
+	"types": "./dist/src/index.d.ts",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/src/index.d.ts",
+			"import": "./dist/src/index.mjs",
+			"require": "./dist/src/index.cjs",
+			"default": "./dist/src/index.mjs"
+		},
+		"./*": {
+			"types": "./dist/src/*/index.d.ts",
+			"import": "./dist/src/*/index.mjs",
+			"require": "./dist/src/*/index.cjs",
+			"default": "./dist/src/*/index.mjs"
+		}
+	},
+	"files": [
+		"dist"
+	],
 	"keywords": [
 		"di",
 		"dependency-injection",

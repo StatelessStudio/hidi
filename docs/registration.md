@@ -44,14 +44,16 @@ container.registerFactory('timestamp', () => Date.now());
 
 Understanding how different registration methods work is important for choosing the right approach:
 
-| Registration | Method | Behavior | Use Case |
-|---|---|---|---|
-| **CLASS** | `register(Class)` | Lazy instantiated singleton | Classes that need single instance |
-| **INSTANCE** | `registerInstance(key, obj)` | Pre-created singleton | Objects, configs, shared resources |
-| **FACTORY** | `registerFactory(key, fn)` | New instance per request | Transient services, per-request instances |
+| Registration | Method                       | Behavior                    | Use Case                                  |
+| ------------ | ---------------------------- | --------------------------- | ----------------------------------------- |
+| **CLASS**    | `register(Class)`            | Lazy instantiated singleton | Classes that need single instance         |
+| **INSTANCE** | `registerInstance(key, obj)` | Pre-created singleton       | Objects, configs, shared resources        |
+| **FACTORY**  | `registerFactory(key, fn)`   | New instance per request    | Transient services, per-request instances |
 
 ```typescript
-class Database { connected = Math.random(); }
+class Database {
+	connected = Math.random();
+}
 
 // CLASS: Created once, cached
 container.register(Database);
@@ -75,6 +77,7 @@ console.log(db4 === db5); // false - different instances
 ## Key Registration Patterns
 
 ### String Keys
+
 Use simple string keys for primitives and configuration values:
 
 ```typescript
@@ -83,13 +86,14 @@ container.register('timeout', 5000);
 ```
 
 ### Class Constructors
+
 Use class constructors as keys for type-safe retrieval:
 
 ```typescript
 class DatabaseService {
-  connect() {
-    console.log('Connected to database');
-  }
+	connect() {
+		console.log('Connected to database');
+	}
 }
 
 const dbService = new DatabaseService();

@@ -1,0 +1,11 @@
+name: remrg/ts-library
+track: branch/remrg/v1
+version: 1.0.0
+description: 'Remrg TypeScript library'
+type: feature
+license: MIT
+access: public
+
+roots:
+  - ts-vite
+  - ts-vitest

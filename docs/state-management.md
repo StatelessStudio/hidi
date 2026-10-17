@@ -16,13 +16,13 @@ container.registerState('counter', 0);
 
 // Register state with a class type as key
 class UserState {
-  name: string = 'Guest';
-  isLoggedIn: boolean = false;
+	name: string = 'Guest';
+	isLoggedIn: boolean = false;
 }
 
 const userState: StateValue<UserState> = container.registerState(UserState, {
-  name: 'John Doe',
-  isLoggedIn: true,
+	name: 'John Doe',
+	isLoggedIn: true,
 });
 ```
 
@@ -46,9 +46,9 @@ Check if a state exists in the container or any parent container.
 
 ```typescript
 if (container.hasState('counter')) {
-  container.subscribe('counter', (newValue, oldValue) => {
-    console.log(`Counter changed: ${oldValue} → ${newValue}`);
-  });
+	container.subscribe('counter', (newValue, oldValue) => {
+		console.log(`Counter changed: ${oldValue} → ${newValue}`);
+	});
 }
 ```
 
@@ -63,7 +63,7 @@ const counterState = container.registerState('counter', 0);
 
 // Subscribe to changes
 const unsubscribe = container.subscribe('counter', (newValue, oldValue) => {
-  console.log(`Counter changed: ${oldValue} → ${newValue}`);
+	console.log(`Counter changed: ${oldValue} → ${newValue}`);
 });
 
 // Update state (triggers all subscribers)
@@ -91,10 +91,12 @@ container.registerState('messageCount', 0);
 
 // Subscribe to all three states with one callback
 const unsubscribe = container.subscribeMany(
-  ['username', 'isOnline', 'messageCount'],
-  (username, isOnline, messageCount) => {
-    console.log(`${username} is ${isOnline ? 'online' : 'offline'} with ${messageCount} messages`);
-  }
+	['username', 'isOnline', 'messageCount'],
+	(username, isOnline, messageCount) => {
+		console.log(
+			`${username} is ${isOnline ? 'online' : 'offline'} with ${messageCount} messages`
+		);
+	}
 );
 
 // Update states - callback fires each time any state changes
@@ -120,24 +122,24 @@ container.getState('username').value = 'Charlie';
 
 ```typescript
 class AppState {
-  isLoading: boolean = false;
-  error: string | null = null;
+	isLoading: boolean = false;
+	error: string | null = null;
 }
 
 const appState = container.registerState(AppState, {
-  isLoading: false,
-  error: null,
+	isLoading: false,
+	error: null,
 });
 
 // Subscribe directly to StateValue instance
 appState.subscribe((newState, oldState) => {
-  console.log('App state changed:', newState);
+	console.log('App state changed:', newState);
 });
 
 // Update via setter
 appState.value = {
-  isLoading: true,
-  error: null,
+	isLoading: true,
+	error: null,
 };
 ```
 
@@ -153,19 +155,19 @@ counterState.update((current) => current + 1);
 
 // Update objects immutably
 class UserState {
-  name: string;
-  age: number;
+	name: string;
+	age: number;
 }
 
 const userState = container.registerState(UserState, {
-  name: 'John',
-  age: 30,
+	name: 'John',
+	age: 30,
 });
 
 // Create new object with updated fields
 userState.update((current) => ({
-  ...current,
-  age: current.age + 1,
+	...current,
+	age: current.age + 1,
 }));
 
 // Update array state immutably
@@ -201,6 +203,7 @@ console.log(dev.getState('apiUrl').value); // "http://localhost:5000"
 ```
 
 **State inheritance behavior by registration type:**
+
 - **Registering new state**: Each container has independent state (not inherited)
 - **Overriding state**: Child registrations override parent for that key
 - **Parent state access**: Children can access parent state if not overridden locally
@@ -212,28 +215,28 @@ Create services that respond to state changes:
 
 ```typescript
 class CartState {
-  items: string[] = [];
-  total: number = 0;
+	items: string[] = [];
+	total: number = 0;
 }
 
 class NotificationService implements HasDependencies {
-  private unsubscribe?: () => void;
+	private unsubscribe?: () => void;
 
-  inject(container: DependencyContainer): void {
-    // Subscribe to cart state changes
-    this.unsubscribe = container.subscribe(CartState, (newCart, oldCart) => {
-      if (newCart.items.length > oldCart.items.length) {
-        console.log('Item added to cart');
-      }
-      if (newCart.total > oldCart.total) {
-        console.log(`New total: $${newCart.total}`);
-      }
-    });
-  }
+	inject(container: DependencyContainer): void {
+		// Subscribe to cart state changes
+		this.unsubscribe = container.subscribe(CartState, (newCart, oldCart) => {
+			if (newCart.items.length > oldCart.items.length) {
+				console.log('Item added to cart');
+			}
+			if (newCart.total > oldCart.total) {
+				console.log(`New total: $${newCart.total}`);
+			}
+		});
+	}
 
-  cleanup(): void {
-    this.unsubscribe?.();
-  }
+	cleanup(): void {
+		this.unsubscribe?.();
+	}
 }
 
 // Setup and use
@@ -244,7 +247,7 @@ container.inject();
 
 const cartState = container.getState(CartState);
 cartState.value = {
-  items: ['book', 'pen'],
-  total: 15.99,
+	items: ['book', 'pen'],
+	total: 15.99,
 }; // Triggers notification
 ```
