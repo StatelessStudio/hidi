@@ -283,12 +283,9 @@ function directSubscriptionExample(): void {
 	const logger = container.require(Logger);
 
 	// Subscribe directly without a service
-	const unsubscribe1 = container.subscribe<User>(
-		'user',
-		(newUser, oldUser) => {
-			logger.log(`User changed from ${oldUser.name} to ${newUser.name}`);
-		}
-	);
+	const unsubscribe1 = container.subscribe<User>('user', (newUser, oldUser) => {
+		logger.log(`User changed from ${oldUser.name} to ${newUser.name}`);
+	});
 
 	const unsubscribe2 = container.subscribe<User>('user', (newUser) => {
 		logger.log(`Email: ${newUser.email}`);

@@ -10,7 +10,7 @@ import { DependencyContainer } from './container';
  * @example
  * ```typescript
  * class UserRepository implements HasDependencies {
- *   private db: Database;
+ *   private db!: Database;
  *
  *   inject(container: DependencyContainer): void {
  *     this.db = container.require(Database);

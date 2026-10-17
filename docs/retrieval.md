@@ -24,10 +24,9 @@ Retrieve a dependency, or throw an error if the dependency is not found in the c
 
 ```typescript
 try {
-  const config = container.require('appConfig');
-}
-catch (error) {
-  console.error('Required dependency not found:', error.message);
+	const config = container.require('appConfig');
+} catch (error) {
+	console.error('Required dependency not found:', error.message);
 }
 ```
 
@@ -39,7 +38,7 @@ Check if a dependency exists in the container or any parent container.
 
 ```typescript
 if (container.has('logger')) {
-  const logger = container.get('logger');
+	const logger = container.get('logger');
 }
 ```
 

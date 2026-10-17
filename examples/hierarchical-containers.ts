@@ -22,7 +22,7 @@ class Logger {
 
 // Standard billing service (10% discount)
 class BillingService implements HasDependencies {
-	protected logger: Logger;
+	protected logger!: Logger;
 
 	inject(container: DependencyContainer): void {
 		this.logger = container.require(Logger);
@@ -46,8 +46,8 @@ class PremiumBillingService extends BillingService {
 
 // Checkout service uses the billing service
 class CheckoutService implements HasDependencies {
-	protected logger: Logger;
-	protected billing: BillingService;
+	protected logger!: Logger;
+	protected billing!: BillingService;
 
 	inject(container: DependencyContainer): void {
 		this.logger = container.require(Logger);

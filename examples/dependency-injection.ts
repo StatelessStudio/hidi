@@ -19,7 +19,7 @@ class Logger {
 
 class Database implements HasDependencies {
 	private connected = false;
-	private logger: Logger;
+	private logger!: Logger;
 
 	inject(container: DependencyContainer): void {
 		this.logger = container.require(Logger);
@@ -44,8 +44,8 @@ class Database implements HasDependencies {
 
 // Repository implementing Dependency interface
 class UserRepository implements HasDependencies {
-	private db: Database;
-	private logger: Logger;
+	private db!: Database;
+	private logger!: Logger;
 
 	inject(container: DependencyContainer): void {
 		this.db = container.require(Database);
@@ -67,8 +67,8 @@ class UserRepository implements HasDependencies {
 
 // Service implementing Dependency interface
 class UserService implements HasDependencies {
-	private repository: UserRepository;
-	private logger: Logger;
+	private repository!: UserRepository;
+	private logger!: Logger;
 
 	inject(container: DependencyContainer): void {
 		this.repository = container.require(UserRepository);

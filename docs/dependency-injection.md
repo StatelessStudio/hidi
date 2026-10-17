@@ -21,19 +21,21 @@ container.inject([unregisteredService]);
 
 Implement the `HasDependencies` interface to enable automatic dependency resolution. Define an `inject(container: DependencyContainer)` method where you explicitly retrieve required dependencies using `container.require()`.
 
+With strict property initialization enabled, use definite-assignment assertions (`!`) for fields initialized by `inject()` rather than the constructor. Call `container.inject()` before using methods that access these fields.
+
 ```typescript
 import { DependencyContainer, HasDependencies } from 'hidi';
 
 class UserRepository implements HasDependencies {
-  private db: Database;
+	private db!: Database;
 
-  inject(container: DependencyContainer): void {
-    this.db = container.require(Database);
-  }
+	inject(container: DependencyContainer): void {
+		this.db = container.require(Database);
+	}
 
-  getUsers() {
-    return this.db.query('SELECT * FROM users');
-  }
+	getUsers() {
+		return this.db.query('SELECT * FROM users');
+	}
 }
 ```
 
@@ -43,42 +45,42 @@ Here's a complete example showing dependency chain resolution:
 
 ```typescript
 class Database implements HasDependencies {
-  private config: DatabaseConfig;
+	private config!: DatabaseConfig;
 
-  inject(container: DependencyContainer): void {
-    this.config = container.require('dbConfig');
-  }
+	inject(container: DependencyContainer): void {
+		this.config = container.require('dbConfig');
+	}
 
-  connect() {
-    console.log(`Connected to ${this.config.host}`);
-  }
+	connect() {
+		console.log(`Connected to ${this.config.host}`);
+	}
 }
 
 class UserRepository implements HasDependencies {
-  private db: Database;
+	private db!: Database;
 
-  inject(container: DependencyContainer): void {
-    this.db = container.require(Database);
-  }
+	inject(container: DependencyContainer): void {
+		this.db = container.require(Database);
+	}
 
-  getUsers() {
-    return this.db.query('SELECT * FROM users');
-  }
+	getUsers() {
+		return this.db.query('SELECT * FROM users');
+	}
 }
 
 class UserService implements HasDependencies {
-  private repository: UserRepository;
-  private logger: Logger;
+	private repository!: UserRepository;
+	private logger!: Logger;
 
-  inject(container: DependencyContainer): void {
-    this.repository = container.require(UserRepository);
-    this.logger = container.require(Logger);
-  }
+	inject(container: DependencyContainer): void {
+		this.repository = container.require(UserRepository);
+		this.logger = container.require(Logger);
+	}
 
-  listUsers() {
-    this.logger.log('Fetching users');
-    return this.repository.getUsers();
-  }
+	listUsers() {
+		this.logger.log('Fetching users');
+		return this.repository.getUsers();
+	}
 }
 
 // Setup
@@ -115,9 +117,9 @@ For services that need to perform async initialization and then access dependenc
 
 ```typescript
 class Database {
-  async connect(): Promise<void> {
-    console.log('Connecting to database...');
-  }
+	async connect(): Promise<void> {
+		console.log('Connecting to database...');
+	}
 }
 
 // Setup and resolve dependencies

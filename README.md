@@ -47,9 +47,9 @@ Register and retrieve using class constructors:
 
 ```typescript
 class DatabaseService {
-  connect() {
-    console.log('Connected to database');
-  }
+	connect() {
+		console.log('Connected to database');
+	}
 }
 
 const dbService = new DatabaseService();
@@ -89,7 +89,7 @@ Retrieve your registered dependencies with `get()`, `require()`, and `has()` met
 const config = container.get('apiUrl');
 const service = container.require(UserService); // Throws if not found
 if (container.has('logger')) {
-  const logger = container.get('logger');
+	const logger = container.get('logger');
 }
 ```
 
@@ -115,11 +115,11 @@ Implement the `HasDependencies` interface and use `inject()` to automatically re
 
 ```typescript
 class UserService implements HasDependencies {
-  private repository: UserRepository;
+	private repository: UserRepository;
 
-  inject(container: DependencyContainer): void {
-    this.repository = container.require(UserRepository);
-  }
+	inject(container: DependencyContainer): void {
+		this.repository = container.require(UserRepository);
+	}
 }
 
 container.register(UserService, new UserService());
@@ -136,7 +136,7 @@ Register reactive state values and subscribe to changes. Build reactive systems 
 const counter = container.registerState('counter', 0);
 
 const unsubscribe = container.subscribe('counter', (newValue, oldValue) => {
-  console.log(`Counter: ${oldValue} → ${newValue}`);
+	console.log(`Counter: ${oldValue} → ${newValue}`);
 });
 
 counter.value = 1; // Notifies subscribers
@@ -159,8 +159,8 @@ requestContainer.register('requestId', req.id);
 
 // Reactive state management
 appState.update((state) => ({
-  ...state,
-  errors: [...state.errors, 'New error']
+	...state,
+	errors: [...state.errors, 'New error'],
 }));
 ```
 
@@ -170,27 +170,24 @@ appState.update((state) => ({
 
 For a quick reference of all available methods:
 
-| Method | Purpose | Documentation |
-|--------|---------|---|
-| `register()` | Register singleton dependencies | [Registration Methods](docs/registration.md) |
-| `registerInstance()` | Register pre-created instances | [Registration Methods](docs/registration.md) |
-| `registerFactory()` | Register factory functions | [Registration Methods](docs/registration.md) |
-| `get()` | Retrieve a dependency | [Dependency Retrieval](docs/retrieval.md) |
-| `require()` | Retrieve or throw error | [Dependency Retrieval](docs/retrieval.md) |
-| `has()` | Check dependency existence | [Dependency Retrieval](docs/retrieval.md) |
-| `extend()` | Create child container | [Hierarchical Containers](docs/hierarchical-containers.md) |
-| `setParent()` | Set parent container | [Hierarchical Containers](docs/hierarchical-containers.md) |
-| `inject()` | Resolve dependencies | [Dependency Injection](docs/dependency-injection.md) |
-| `registerState()` | Register reactive state | [State Management](docs/state-management.md) |
-| `getState()` | Retrieve state wrapper | [State Management](docs/state-management.md) |
-| `subscribe()` | Listen to state changes | [State Management](docs/state-management.md) |
-| `subscribeMany()` | Listen to multiple states | [State Management](docs/state-management.md) |
-
-## Contributing & Development
+| Method               | Purpose                         | Documentation                                              |
+| -------------------- | ------------------------------- | ---------------------------------------------------------- |
+| `register()`         | Register singleton dependencies | [Registration Methods](docs/registration.md)               |
+| `registerInstance()` | Register pre-created instances  | [Registration Methods](docs/registration.md)               |
+| `registerFactory()`  | Register factory functions      | [Registration Methods](docs/registration.md)               |
+| `get()`              | Retrieve a dependency           | [Dependency Retrieval](docs/retrieval.md)                  |
+| `require()`          | Retrieve or throw error         | [Dependency Retrieval](docs/retrieval.md)                  |
+| `has()`              | Check dependency existence      | [Dependency Retrieval](docs/retrieval.md)                  |
+| `extend()`           | Create child container          | [Hierarchical Containers](docs/hierarchical-containers.md) |
+| `setParent()`        | Set parent container            | [Hierarchical Containers](docs/hierarchical-containers.md) |
+| `inject()`           | Resolve dependencies            | [Dependency Injection](docs/dependency-injection.md)       |
+| `registerState()`    | Register reactive state         | [State Management](docs/state-management.md)               |
+| `getState()`         | Retrieve state wrapper          | [State Management](docs/state-management.md)               |
+| `subscribe()`        | Listen to state changes         | [State Management](docs/state-management.md)               |
+| `subscribeMany()`    | Listen to multiple states       | [State Management](docs/state-management.md)               |
 
 See [contributing.md](docs/contributing/contributing.md) for information on how to develop or contribute to this project!
 
 ## License
 
 See [LICENSE.md](LICENSE.md)
-
