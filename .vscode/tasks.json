@@ -54,6 +54,32 @@
 				"focus": false,
 				"panel": "shared"
 			}
+		},
+		{
+			"label": "npm run test:dev",
+			"type": "shell",
+			"command": "npm",
+			"args": ["run", "test:dev"],
+			"problemMatcher": [],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
+		},
+		{
+			"label": "npm run test:run",
+			"type": "shell",
+			"command": "npm",
+			"args": ["run", "test:run"],
+			"problemMatcher": [],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
 		}
 	]
 }

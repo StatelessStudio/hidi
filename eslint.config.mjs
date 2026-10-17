@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import tsParser from '@typescript-eslint/parser';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
+import globals from 'globals';
 
 const eslintConfig = [
 	{
@@ -16,7 +17,7 @@ const eslintConfig = [
 				projectService: true,
 			},
 			globals: {
-				console: 'readonly',
+				...globals.browser,
 				process: 'readonly',
 			},
 		},

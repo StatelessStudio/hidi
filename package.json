@@ -1,16 +1,22 @@
 {
 	"name": "{{ remrg:var project-name }}",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"description": "",
 	"author": "{{ remrg:var organization }}",
 	"license": "{{ remrg:var license }}",
+	"type": "module",
 	"scripts": {
-		"build": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
-		"dev": "tsc -p tsconfig.json --watch",
+		"build": "vite build",
+		"dev": "vite build --watch",
+		"prepare": "npm run build",
+		"preview": "vite preview",
 		"typecheck": "tsc -p tsconfig.json --noEmit",
 		"lint": "eslint . --fix && prettier --write .",
 		"lint:check": "prettier --check . && eslint .",
-		"test": "npm run lint && npm run typecheck"
+		"test": "npm run lint && npm run typecheck && npm run test:run",
+		"test:ci": "npm run lint:check && npm run typecheck && npm run test:run",
+		"test:dev": "vitest --ui --coverage",
+		"test:run": "vitest run --coverage"
 	},
 	"engines": {
 		"node": ">=22.0.0",
@@ -22,10 +28,39 @@
 		"@types/node": "^22.19.17",
 		"@typescript-eslint/eslint-plugin": "^8.57.2",
 		"@typescript-eslint/parser": "^8.57.2",
+		"@vitest/coverage-v8": "^4.1.2",
+		"@vitest/ui": "^4.1.2",
 		"eslint": "^10.1.0",
+		"fast-glob": "^3.3.3",
+		"globals": "^17.6.0",
 		"prettier": "^3.8.1",
 		"prettier-plugin-brace-style": "^0.10.1",
-		"tsc-alias": "^1.9.2",
-		"typescript": "^5.9.3"
-	}
+		"terser": "^5.46.1",
+		"typescript": "^5.9.3",
+		"vite": "^8.0.9",
+		"vite-plugin-dts": "^4.5.4",
+		"vitest": "^4.1.2"
+	},
+	"keywords": [],
+	"main": "./dist/src/index.cjs",
+	"module": "./dist/src/index.mjs",
+	"types": "./dist/src/index.d.ts",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/src/index.d.ts",
+			"import": "./dist/src/index.mjs",
+			"require": "./dist/src/index.cjs",
+			"default": "./dist/src/index.mjs"
+		},
+		"./*": {
+			"types": "./dist/src/*/index.d.ts",
+			"import": "./dist/src/*/index.mjs",
+			"require": "./dist/src/*/index.cjs",
+			"default": "./dist/src/*/index.mjs"
+		}
+	},
+	"files": [
+		"dist"
+	]
 }

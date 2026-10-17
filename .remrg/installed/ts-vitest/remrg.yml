@@ -1,0 +1,10 @@
+name: remrg/ts-vitest
+track: branch/remrg/v1
+version: 1.0.0
+description: 'Remrg TypeScript Vitest'
+type: feature
+license: MIT
+access: public
+
+roots:
+  - lang-ts
